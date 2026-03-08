@@ -28,15 +28,26 @@ jobs:
             }
           }
 
-      - name: Publish to PowerShell Gallery
+      - name: Check publish secret
+        id: publish_prereqs
         shell: pwsh
         env:
           PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
         run: |
           if (-not $env:PSGALLERY_API_KEY) {
-            throw 'Missing PSGALLERY_API_KEY secret.'
+            "should_publish=false" >> $env:GITHUB_OUTPUT
+            Write-Warning 'Skipping PowerShell Gallery publish because PSGALLERY_API_KEY is not configured.'
+            exit 0
           }
 
+          "should_publish=true" >> $env:GITHUB_OUTPUT
+
+      - name: Publish to PowerShell Gallery
+        if: steps.publish_prereqs.outputs.should_publish == 'true'
+        shell: pwsh
+        env:
+          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+        run: |
           if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
             Register-PSRepository `
               -Name PSGallery `
