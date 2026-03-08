@@ -1,8 +1,14 @@
 # cdup
 
-`cdup` is a PowerShell navigation utility for moving to an ancestor directory quickly.
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/cdup)](https://www.powershellgallery.com/packages/cdup)
+[![CI](https://github.com/amanzainal/cdup/actions/workflows/ci.yml/badge.svg)](https://github.com/amanzainal/cdup/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/amanzainal/cdup)](LICENSE)
 
-It starts with the obvious case, `cdup 3`, but it also handles the cases that are annoying to type repeatedly:
+`cdup` is a PowerShell command for moving up directory trees quickly.
+
+Instead of repeating `cd ..`, `cdup` moves your current session directly to the parent directory you want.
+
+It supports:
 
 - Move up by level count
 - Jump to an ancestor by name
@@ -10,81 +16,20 @@ It starts with the obvious case, `cdup 3`, but it also handles the cases that ar
 - Jump to the filesystem root
 - Use a short alias: `up`
 
-## Why this exists
-
-Typing `cd ../../..` is fine once. It gets old when you are bouncing around nested repos all day.
-
-`cdup` keeps upward navigation readable:
-
-```powershell
-cdup 3
-cdup src
-cdup -GitRoot
-up -Root
-```
-
-## Current project status
-
-This repository is now structured as a real PowerShell module with:
-
-- A module manifest for PowerShell Gallery publishing
-- Pester tests
-- GitHub Actions CI on Windows, macOS, and Linux
-- A publish workflow for tagged releases
-- MIT licensing
-
-`cdup` `0.1.1` is live on the PowerShell Gallery.
-
 ## Install
-
-### Install from the PowerShell Gallery
 
 ```powershell
 Install-Module cdup -Scope CurrentUser
 Import-Module cdup
 ```
 
-That gives you both `cdup` and `up`.
+To load `cdup` automatically in new sessions, add `Import-Module cdup` to your PowerShell profile.
 
-### Try it locally
-
-From the repository root:
-
-```powershell
-Import-Module ./cdup.psd1 -Force
-```
-
-That gives you both `cdup` and `up` in the current session.
-
-### Install persistently
-
-Copy the module files into any directory on `$env:PSModulePath`, using the conventional module layout:
-
-```powershell
-$moduleBase = ($env:PSModulePath -split [IO.Path]::PathSeparator)[0]
-$moduleRoot = Join-Path $moduleBase 'cdup/0.1.1'
-New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
-Copy-Item -Path .\cdup.ps1, .\cdup.psm1, .\cdup.psd1, .\LICENSE -Destination $moduleRoot -Force
-Import-Module cdup
-```
-
-### Maintainer publish flow
-
-The repository includes [publish.yml](.github/workflows/publish.yml) and [publish.ps1](scripts/publish.ps1). Once you add the `PSGALLERY_API_KEY` repository secret and push a matching tag, GitHub Actions can publish future releases automatically.
-
-```powershell
-./scripts/publish.ps1
-```
-
-By default, `publish.ps1` reads the API key from `PSGALLERY_API_KEY` or a local machine path outside the repository:
-
-```text
-%LOCALAPPDATA%\cdup\psgallery_api_key.txt
-```
+`cdup` supports Windows PowerShell 5.1 and PowerShell 7+.
 
 ## Usage
 
-### Move up by level count
+### Move up by number of levels
 
 ```powershell
 cdup
@@ -100,7 +45,7 @@ If your current path is `C:\work\client\api\src\handlers`:
 cdup src
 ```
 
-You will land in `C:\work\client\api\src`.
+This moves directly to `C:\work\client\api\src`.
 
 ### Jump to the current Git repository root
 
@@ -114,34 +59,30 @@ cdup -GitRoot
 cdup -Root
 ```
 
-## Development
-
-Run the tests locally:
+## Examples
 
 ```powershell
-Invoke-Pester ./tests
+PS C:\work\client\api\src\handlers> cdup 3
+PS C:\work\client> cdup src
+PS C:\work\client\api\src\handlers> cdup -GitRoot
+PS C:\work\client\api> up -Root
 ```
 
-The CI workflow lives at [ci.yml](.github/workflows/ci.yml).
+## Command Reference
 
-## Road to broad adoption
+| Command | Result |
+| --- | --- |
+| `cdup` | Move up one directory |
+| `cdup 3` | Move up three directories |
+| `cdup src` | Jump to the nearest ancestor named `src` |
+| `cdup -GitRoot` | Jump to the nearest Git repository root |
+| `cdup -Root` | Jump to the filesystem root |
+| `up 2` | Same as `cdup 2` |
 
-If you want `cdup` to become a default tool instead of a personal script, the sequence matters:
+## Notes
 
-1. Win PowerShell users first.
-2. Publish and tag releases consistently.
-3. Add screenshots or a short terminal GIF to the repository and release notes.
-4. Submit downstream packages to Scoop, then WinGet once there is a wrapped installer or executable.
-5. Expand to Bash, Zsh, and Fish once the PowerShell version is stable.
-
-## Contributing
-
-Issues and pull requests are welcome, especially around:
-
-- Cross-shell ports
-- Packaging for more ecosystems
-- Completion scripts
-- Better jump modes that save real keystrokes
+- `cdup` changes the current PowerShell session location, so it should be imported as a command, not launched in a separate shell process.
+- `cdup` operates on FileSystem locations.
 
 ## License
 

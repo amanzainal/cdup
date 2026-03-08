@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$ApiKeyPath
+    [string]$ApiKeyPath,
+    [string]$EnvFilePath = (Join-Path (Split-Path -Path $PSScriptRoot -Parent) '.env')
 )
 
 $projectRoot = Split-Path -Path $PSScriptRoot -Parent
@@ -8,6 +9,16 @@ $manifestPath = Join-Path -Path $projectRoot -ChildPath 'cdup.psd1'
 $manifest = Import-PowerShellDataFile -Path $manifestPath
 $stageScriptPath = Join-Path -Path $PSScriptRoot -ChildPath 'stage-module.ps1'
 $apiKey = $env:PSGALLERY_API_KEY
+
+if (-not $apiKey -and (Test-Path -LiteralPath $EnvFilePath)) {
+    $line = Get-Content -LiteralPath $EnvFilePath | Where-Object {
+        $_ -match '^\s*PSGALLERY_API_KEY\s*='
+    } | Select-Object -First 1
+
+    if ($line) {
+        $apiKey = ($line -split '=', 2)[1].Trim().Trim("'`"")
+    }
+}
 
 if (-not $ApiKeyPath) {
     if ($IsWindows) {
@@ -23,7 +34,7 @@ if (-not $apiKey -and (Test-Path -LiteralPath $ApiKeyPath)) {
 }
 
 if (-not $apiKey) {
-    throw "PowerShell Gallery API key not found. Set PSGALLERY_API_KEY or create '$ApiKeyPath'."
+    throw "PowerShell Gallery API key not found. Set PSGALLERY_API_KEY, add it to '$EnvFilePath', or create '$ApiKeyPath'."
 }
 
 if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
