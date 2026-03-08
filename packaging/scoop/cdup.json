@@ -1,0 +1,20 @@
+{
+  "version": "0.1.1",
+  "description": "Fast ancestor navigation for PowerShell with level, name, git-root, and filesystem-root jumps.",
+  "homepage": "https://github.com/amanzainal/cdup",
+  "license": "MIT",
+  "url": "https://www.powershellgallery.com/api/v2/package/cdup/0.1.1",
+  "hash": "10dc7793cace7eb37063420ef68c58d9086711550f3b11c660e496a28e4b7956",
+  "bin": "cdup.ps1",
+  "notes": [
+    "This draft installs the published PowerShell Gallery package through Scoop's shim for cdup.ps1.",
+    "Validate Scoop's PowerShell shim behavior locally before submitting to the main bucket."
+  ],
+  "checkver": {
+    "url": "https://www.powershellgallery.com/packages/cdup",
+    "regex": "/packages/cdup/(?<version>[\\d.]+)"
+  },
+  "autoupdate": {
+    "url": "https://www.powershellgallery.com/api/v2/package/cdup/$version"
+  }
+}

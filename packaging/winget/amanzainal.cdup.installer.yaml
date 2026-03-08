@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+# Draft only. WinGet community packages do not accept script-based installers in their current rules.
+# cdup changes the current PowerShell session location, so a plain external executable wrapper is not equivalent.
+# Before submitting this manifest, ship a dedicated installer or supported bootstrapper that installs/imports the module into the user's PowerShell environment.
+PackageIdentifier: amanzainal.cdup
+PackageVersion: 0.1.1
+MinimumOSVersion: 10.0.0.0
+InstallModes:
+  - interactive
+  - silent
+Installers:
+  - Architecture: x64
+    InstallerType: exe
+    InstallerUrl: https://github.com/amanzainal/cdup/releases/download/v0.1.1/cdup-bootstrapper-x64.exe
+    InstallerSha256: REPLACE_WITH_BOOTSTRAPPER_SHA256
+ManifestType: installer
+ManifestVersion: 1.9.0

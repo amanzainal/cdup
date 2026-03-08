@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.9.0.schema.json
+PackageIdentifier: amanzainal.cdup
+PackageVersion: 0.1.1
+PackageLocale: en-US
+Publisher: amanzainal
+PublisherUrl: https://github.com/amanzainal
+PublisherSupportUrl: https://github.com/amanzainal/cdup/issues
+Author: amanzainal
+PackageName: cdup
+PackageUrl: https://github.com/amanzainal/cdup
+License: MIT
+LicenseUrl: https://github.com/amanzainal/cdup/blob/main/LICENSE
+ShortDescription: Fast ancestor navigation for PowerShell.
+Description: cdup is a PowerShell navigation utility that moves to ancestor directories by level, name, repository root, or filesystem root.
+Tags:
+  - cli
+  - powershell
+  - productivity
+  - shell
+ManifestType: locale
+ManifestVersion: 1.9.0

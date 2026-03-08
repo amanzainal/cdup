@@ -1,0 +1,51 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate tag and module version
+        shell: pwsh
+        run: |
+          $manifest = Import-PowerShellDataFile -Path ./cdup.psd1
+          $moduleVersion = [string]$manifest.ModuleVersion
+
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $tagVersion = $env:GITHUB_REF_NAME.TrimStart('v')
+
+            if ($tagVersion -ne $moduleVersion) {
+              throw "Tag version '$tagVersion' does not match module version '$moduleVersion'."
+            }
+          }
+
+      - name: Publish to PowerShell Gallery
+        shell: pwsh
+        env:
+          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+        run: |
+          if (-not $env:PSGALLERY_API_KEY) {
+            throw 'Missing PSGALLERY_API_KEY secret.'
+          }
+
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository `
+              -Name PSGallery `
+              -SourceLocation 'https://www.powershellgallery.com/api/v2' `
+              -PublishLocation 'https://www.powershellgallery.com/api/v2/package/' `
+              -ScriptSourceLocation 'https://www.powershellgallery.com/api/v2/items/psscript' `
+              -ScriptPublishLocation 'https://www.powershellgallery.com/api/v2/package/' `
+              -InstallationPolicy Trusted
+          }
+
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          ./scripts/publish.ps1

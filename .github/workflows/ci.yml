@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository `
+              -Name PSGallery `
+              -SourceLocation 'https://www.powershellgallery.com/api/v2' `
+              -PublishLocation 'https://www.powershellgallery.com/api/v2/package/' `
+              -ScriptSourceLocation 'https://www.powershellgallery.com/api/v2/items/psscript' `
+              -ScriptPublishLocation 'https://www.powershellgallery.com/api/v2/package/' `
+              -InstallationPolicy Trusted
+          }
+
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -MinimumVersion 5.5.0 -Scope CurrentUser -Force -SkipPublisherCheck
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          Import-Module ./cdup.psd1 -Force
+          Invoke-Pester -Path ./tests -CI
